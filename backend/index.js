@@ -48,7 +48,7 @@ app.use('/api/social', socialRoutes)
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('✅ MongoDB connected'))
+  .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err))
 
 const PORT = process.env.PORT || 5000
