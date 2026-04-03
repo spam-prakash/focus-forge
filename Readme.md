@@ -6,7 +6,7 @@ FocusForge is a smart productivity web app designed to help students prioritize 
 
 ---
 
-## 🚀 Problems
+## 🚀 Problem
 
 Students don’t struggle with remembering tasks — they struggle with:
 - Poor prioritization  
