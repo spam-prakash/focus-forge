@@ -44,6 +44,11 @@ const userSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  settings: {
+    notifications: { type: Boolean, default: true },
+    weeklyReport: { type: Boolean, default: true },
+    painReminders: { type: Boolean, default: true }
   }
 })
 

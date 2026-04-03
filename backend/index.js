@@ -3,12 +3,16 @@ const mongoose = require('mongoose')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 require('dotenv').config()
+const analyticsRoutes = require('./routes/analyticsRoutes')
 
 const authRoutes = require('./routes/authRoutes')
 const taskRoutes = require('./routes/taskRoutes')
 const priorityRoutes = require('./routes/priorityRoutes')
 const reportRoutes = require('./routes/reportRoutes')
 const socialRoutes = require('./routes/socialRoutes')
+const emailRoutes = require('./routes/emailRoutes')
+const { scheduleDailyReminders, scheduleWeeklyReports, checkDeadlines, checkStreakMilestones } = require('./services/emailQueue')
+// const aiRoutes = require('./routes/aiRoutes')
 
 const app = express()
 
@@ -45,7 +49,31 @@ app.use('/api/tasks', taskRoutes)
 app.use('/api/priority', priorityRoutes)
 app.use('/api/reports', reportRoutes)
 app.use('/api/social', socialRoutes)
+app.use('/api/analytics', analyticsRoutes)
+app.use('/api/email', emailRoutes)
+// app.use('/api/ai', aiRoutes)
 
+// Start scheduled jobs
+setInterval(() => {
+  // Run daily at 9 AM
+  const now = new Date()
+  if (now.getHours() === 9 && now.getMinutes() === 0) {
+    scheduleDailyReminders()
+  }
+
+  // Run weekly on Monday at 8 AM
+  if (now.getDay() === 1 && now.getHours() === 8 && now.getMinutes() === 0) {
+    scheduleWeeklyReports()
+  }
+
+  // Check deadlines every hour
+  checkDeadlines()
+
+  // Check streak milestones daily
+  if (now.getHours() === 10 && now.getMinutes() === 0) {
+    checkStreakMilestones()
+  }
+}, 60000) // Check every minute
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('MongoDB connected'))

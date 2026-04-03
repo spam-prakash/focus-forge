@@ -1,6 +1,7 @@
 const User = require('../models/User')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const { sendWelcomeEmail } = require('../services/emailQueue')
 
 exports.signup = async (req, res) => {
   try {
@@ -49,6 +50,7 @@ exports.signup = async (req, res) => {
         token
       }
     })
+    await sendWelcomeEmail(user)
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message })
   }
@@ -92,7 +94,8 @@ exports.login = async (req, res) => {
         streak: user.streak,
         totalXp: user.totalXp,
         level: user.level,
-        token
+        token,
+        createdAt: user.createdAt
       }
     })
   } catch (error) {
