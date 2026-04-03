@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken')
 exports.signup = async (req, res) => {
   try {
     const { name, email, password } = req.body
-    
+
     // Check if user exists
     const existingUser = await User.findOne({ email })
     if (existingUser) {
@@ -14,21 +14,21 @@ exports.signup = async (req, res) => {
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10)
-    
+
     // Create user
     const user = new User({
       name,
       email,
       password: hashedPassword
     })
-    
+
     await user.save()
-    
+
     // Generate token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: '7d'
     })
-    
+
     // Set cookie
     res.cookie('token', token, {
       httpOnly: true,
@@ -36,7 +36,7 @@ exports.signup = async (req, res) => {
       sameSite: 'strict',
       maxAge: 7 * 24 * 60 * 60 * 1000
     })
-    
+
     res.status(201).json({
       message: 'User created successfully',
       user: {
@@ -45,7 +45,8 @@ exports.signup = async (req, res) => {
         email: user.email,
         streak: user.streak,
         totalXp: user.totalXp,
-        level: user.level
+        level: user.level,
+        token
       }
     })
   } catch (error) {
@@ -56,7 +57,7 @@ exports.signup = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body
-    
+
     // Find user
     const user = await User.findOne({ email })
     if (!user) {
@@ -73,7 +74,7 @@ exports.login = async (req, res) => {
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: '7d'
     })
-    
+
     // Set cookie
     res.cookie('token', token, {
       httpOnly: true,
@@ -81,7 +82,7 @@ exports.login = async (req, res) => {
       sameSite: 'strict',
       maxAge: 7 * 24 * 60 * 60 * 1000
     })
-    
+
     res.json({
       message: 'Login successful',
       user: {
@@ -90,7 +91,8 @@ exports.login = async (req, res) => {
         email: user.email,
         streak: user.streak,
         totalXp: user.totalXp,
-        level: user.level
+        level: user.level,
+        token
       }
     })
   } catch (error) {
@@ -101,7 +103,7 @@ exports.login = async (req, res) => {
 exports.logout = (req, res) => {
   res.clearCookie('token')
   res.json({ message: 'Logout successful' })
-};
+}
 
 exports.getMe = async (req, res) => {
   try {
